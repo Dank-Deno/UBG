@@ -1,0 +1,586 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Ultimate Battlegrounds",
+   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "Rayfield Interface Suite",
+   LoadingSubtitle = "by TR5CKER",
+   ShowText = "Rayfield", -- for mobile users to unhide rayfield, change if you'd like
+   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+
+   ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "Big Hub"
+   },
+
+   Discord = {
+      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+   },
+
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+   }
+})
+
+local MainTab = Window:CreateTab("HOME", nil) -- Title, Image
+
+local MainSection = MainTab:CreateSection("MAIN")
+
+
+local DisablesMainTab = Window:CreateTab("⚠️TOGGLES⚠️", nil) -- Title, Image
+
+local DisablesMainSection = DisablesMainTab:CreateSection("TOGGLES")
+
+local MiscsMainTab = Window:CreateTab("👑MISCS👑", nil) -- Title, Image
+
+local MiscsMainSection = MiscsMainTab:CreateSection("MISC")
+
+
+local uis = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+
+local infiniteJumpToggle = false
+local RagdollOtherToggle = false
+local NoCooldownToggle = false
+local NoDashCooldownToggle = false
+local  NoWCCooldownToggle = false
+local InfiniteUltimateTimerToggle = false
+local AuraKillToggle = false
+local NoClipToggle = false
+
+
+local Toggle = MainTab:CreateToggle({
+   Name = "Infinite Jumping",
+   CurrentValue = false,
+   Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            infiniteJumpToggle = Value
+   end,
+})
+
+uis.JumpRequest:Connect(function()
+	if infiniteJumpToggle then
+		local char = player.Character
+		if char and char:FindFirstChild("Humanoid") then
+			char:FindFirstChild("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)  
+
+
+
+local Toggle = MainTab:CreateToggle({
+    Name = "No Clip[FIXING]",
+    CurrentValue = false,
+    Flag = "Toggle2",
+    Callback = function(Value)
+        NoClipToggle = Value
+
+        if player.Character then
+            for _, part in ipairs(player.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = not NoClipToggle
+                end
+            end
+        end
+    end,
+})
+
+local Toggle = MainTab:CreateToggle({
+    Name = "INF HP",
+    CurrentValue = false,
+    Flag = "Toggle15",
+    Callback = function(Value)
+        AuraKillToggle = Value
+        local player = game.Players.LocalPlayer
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        if AuraKillToggle then
+            hrp.Size = Vector3.new(5, 5, 5)
+            hrp.Transparency = 0
+
+            -- Connect touch event
+            hrp.Touched:Connect(function(hit)
+                local h = hit.Parent:FindFirstChild("Humanoid")
+                if h and hit.Parent ~= player.Character then
+                    h.Health = 0
+                end
+            end)
+        else
+            hrp.Size = Vector3.new(2, 2, 1)
+            hrp.Transparency = 1
+        end
+    end,
+})
+
+
+
+--RAGDOLL Others
+local Toggle = MainTab:CreateToggle({
+   Name = "Ragdoll Others",
+   CurrentValue = false,
+   Flag = "Toggle3", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            RagdollOtherToggle = Value
+
+        local dmg = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("MeleeDamage")
+            if RagdollOtherToggle then
+			dmg.Value = 129381
+        else
+            dmg.Value = 100
+		end
+   end,
+})
+
+
+
+--No  Melee Cooldown
+local Toggle = MainTab:CreateToggle({
+   Name = "No Cooldown",
+   CurrentValue = false,
+   Flag = "Toggle4", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            NoCooldownToggle = Value
+
+        local dmg = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Cooldowns"):WaitForChild("Melee")
+            local event = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Abilities"):WaitForChild("Ability")
+            if NoCooldownToggle then
+			dmg.Value = 0
+        else
+            dmg.Value = 100
+		end
+   end,
+})
+
+
+local Toggle = MainTab:CreateToggle({
+   Name = "No Dash Cooldown",
+   CurrentValue = false,
+   Flag = "Toggle5", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            NoDashCooldownToggle = Value
+
+        local dash = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Cooldowns"):WaitForChild("Dash")
+            if NoDashCooldownToggle then
+			dash.Value = 0
+        else
+            dash.Value = 100
+		end
+   end,
+})
+
+local Toggle = MainTab:CreateToggle({
+   Name = "Infinite WallCombo",
+   CurrentValue = false,
+   Flag = "Toggle6", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            NoWCCooldownToggle = Value
+
+        local wc = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Cooldowns"):WaitForChild("WallCombo")
+            if NoWCCooldownToggle then
+			wc.Value = 0
+        else
+            wc.Value = 100
+		end
+   end,
+})
+
+local Toggle = MainTab:CreateToggle({
+   Name = "Infinite ULT",
+   CurrentValue = false,
+   Flag = "Toggle14", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            InfiniteUltimateTimerToggle = Value
+
+        local ut = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("UltimateTimer")
+            if InfiniteUltimateTimerToggle then
+			ut.Value = 100000000000000000
+        else
+            ut.Value = 100
+		end
+   end,
+})
+
+
+
+
+
+
+
+local Slider = MainTab:CreateSlider({
+   Name = "Ragdoll Slider",
+   Range = {100, 100000},
+   Increment = 1,
+   Suffix = "RagdollSlider",
+   CurrentValue = 100,
+   Flag = "Slider4", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       local rt = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("RagdollTimer")
+        local rp = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("RagdollPower")
+            rt.Value = Value
+            rp.Value = Value
+   end,
+})
+
+
+
+
+local Slider = MainTab:CreateSlider({
+   Name = "WalkSpeed Slider",
+   Range = {100, 100000},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 100,
+   Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       local rs = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("RunSpeed")
+        local ws = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("WalkSpeed")
+            rs.Value = Value
+            ws.Value = Value
+   end,
+})
+
+
+local Slider = MainTab:CreateSlider({
+   Name = "Dash Speed",
+   Range = {100, 1000},
+   Increment = 1,
+   Suffix = "DashSpeed",
+   CurrentValue = 100,
+   Flag = "Slider3", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       local DS = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("DashSpeed")
+            DS.Value = Value
+   end,
+})
+
+local Slider = MainTab:CreateSlider({
+   Name = "JumpHeight Slider",
+   Range = {100, 100000},
+   Increment = 1,
+   Suffix = "Jump",
+   CurrentValue = 100,
+   Flag = "Slider2", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       local JH = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Multipliers"):WaitForChild("JumpHeight")
+            JH.Value = Value
+   end,
+})
+
+
+
+
+
+
+local DisableComatTimer = false
+local DisableHitStun = false
+local DisableTransformation = false
+local DisableJumpFatigue = false
+local DisableSlowdowns = false
+local DisableStunOnMiss = false
+local DisableFriendFire = false
+--WEIRD TAB--
+
+--Disalbe Combat Timer
+local Toggle = DisablesMainTab:CreateToggle({
+   Name = "Disable CombatTimer",
+   CurrentValue = false,
+   Flag = "Toggle7", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            DisableComatTimer = Value
+
+        local CombatTimer = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Toggles"):WaitForChild("DisableCombatTimer")
+            if DisableComatTimer then
+			CombatTimer.Value = true
+        else
+            CombatTimer.Value = false
+		end
+   end,
+})
+
+
+--Disable hit Stun
+local Toggle = DisablesMainTab:CreateToggle({
+   Name = "Disable Hit Stun",
+   CurrentValue = false,
+   Flag = "Toggle8", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            DisableHitStun = Value
+
+        local HitStun = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Toggles"):WaitForChild("DisableHitStun")
+            if DisableHitStun then
+			HitStun.Value = true
+        else
+            HitStun.Value = false
+		end
+   end,
+})
+
+--Disable Transformation
+local Toggle = DisablesMainTab:CreateToggle({
+   Name = "Disable Transformation",
+   CurrentValue = false,
+   Flag = "Toggle9", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            DisableTransformation = Value
+
+        local InstantTransformation = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Toggles"):WaitForChild("InstantTransformation")
+            if DisableTransformation then
+			InstantTransformation.Value = true
+        else
+            InstantTransformation.Value = false
+		end
+   end,
+})
+--Disable Jump Fatigue
+local Toggle = DisablesMainTab:CreateToggle({
+   Name = "Disable JumpFatigue",
+   CurrentValue = false,
+   Flag = "Toggle10", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            DisableJumpFatigue = Value
+
+        local NoJumpFatigue = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Toggles"):WaitForChild("NoJumpFatigue")
+            if DisableJumpFatigue then
+			NoJumpFatigue.Value = true
+        else
+            NoJumpFatigue.Value = false
+		end
+   end,
+})
+--Disable Slowdowns
+local Toggle = DisablesMainTab:CreateToggle({
+   Name = "Disable Slowdowns",
+   CurrentValue = false,
+   Flag = "Toggle11", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            DisableSlowdowns = Value
+
+        local NoSlowdowns = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Toggles"):WaitForChild("NoSlowdowns")
+            if DisableSlowdowns then
+			NoSlowdowns.Value = true
+        else
+            NoSlowdowns.Value = false
+		end
+   end,
+})
+
+--Disable StunOnMiss
+local Toggle = DisablesMainTab:CreateToggle({
+   Name = "Disable StunOnMiss",
+   CurrentValue = false,
+   Flag = "Toggle12", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            DisableStunOnMiss = Value
+
+        local NoStunOnMiss = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Toggles"):WaitForChild("NoStunOnMiss")
+            if DisableStunOnMiss then
+			NoStunOnMiss.Value = true
+        else
+            NoStunOnMiss.Value = false
+		end
+   end,
+})
+
+--Disable FriendlyFire
+local Toggle = DisablesMainTab:CreateToggle({
+   Name = "Disable Friendly Fire",
+   CurrentValue = false,
+   Flag = "Toggle13", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            DisableFriendFire = Value
+
+        local FriendlyFire = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Toggles"):WaitForChild("FriendlyFire")
+            if DisableFriendFire then
+			FriendlyFire.Value = true
+        else
+            FriendlyFire.Value = false
+		end
+   end,
+})
+
+
+--MISCS TAB--
+
+local MiscVIPToggle = false
+local MiscPrivateServerToggle = false
+
+
+local Toggle = MiscsMainTab:CreateToggle({
+   Name = "Unlock VIP [Client Side]",
+   CurrentValue = false,
+   Flag = "Toggle14", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            MiscVIPToggle = Value
+
+        local miscFolder = game.Players.LocalPlayer.Passes
+            local VIP = miscFolder.VIP
+            if MiscVIPToggle then
+			VIP.Value = true
+        else
+            VIP.Value = false
+		end
+   end,
+})
+
+
+local Toggle = MiscsMainTab:CreateToggle({
+   Name = "Unlock Private Server[FIXING]",
+   CurrentValue = false,
+   Flag = "Toggle15", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            MiscPrivateServerToggle = Value
+
+        local miscFolder = game.Players.LocalPlayer.Passes
+            local PrivateServer = miscFolder.PrivateServers
+            if MiscPrivateServerToggle then
+			PrivateServer.Value = true
+        else
+            PrivateServer.Value = false
+		end
+   end,
+})
+
+local Dropdown = MiscsMainTab:CreateDropdown({
+    Name = "Kill Emote Unlocker",
+    Options = {
+        "Avra Kadoovra",
+        "Baldie's Demise",
+        "Barbarian",
+        "Bee",
+        "Blood Sugar",
+        "Cauldron",
+        "Curb Stomp",
+        "Figure Skater",
+        "Frost Breath",
+        "Frostbound Prison",
+        "Frozen Impalement",
+        "Gingerbread",
+        "Glacial Burial",
+        "Goblin Bomb",
+        "Heart Rip",
+        "Impostor",
+        "Laser Eyes",
+        "Mistletoe",
+        "Naughty List",
+        "Neck Snap",
+        "Orthax",
+        "Pollen Overload",
+        "Possession",
+        "Rudolph's Revenge",
+        "Selfie",
+        "Serious Sneeze",
+        "Sick Burn",
+        "Smite",
+        "Snowball Cannon",
+        "Snowflakes",
+        "Sore Winner",
+        "Spine Breaker",
+        "Spirit Trap",
+        "Surprise!",
+        "Think Mark",
+        "Tinsel Strangle",
+        "Tree Topper Slice",
+        "Vampire",
+        "Werewolf",
+        "Wrap It Up",
+        "ACME"
+    },
+    CurrentOption = {"Smite"},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(option)
+        local chosen = option[1] -- dropdown returns a table
+
+        local DataFolder = game.Players.LocalPlayer:FindFirstChild("Data")
+        if not DataFolder then return end
+
+        local EmoteEquippedString = DataFolder:FindFirstChild("EmoteEquipped")
+        local KillEmoteInventoryString = DataFolder:FindFirstChild("KillEmoteInventory")
+
+        if EmoteEquippedString and EmoteEquippedString:IsA("StringValue") then
+            EmoteEquippedString.Value = '[["KillEmote","' .. chosen .. '"],false,false,false,false]'
+        end
+
+        if KillEmoteInventoryString and KillEmoteInventoryString:IsA("StringValue") then
+            KillEmoteInventoryString.Value = '["' .. chosen .. '"]'
+        end
+
+        print("Kill emote set to:", chosen)
+    end,
+})
+
+
+
+
+local Dropdown = MiscsMainTab:CreateDropdown({
+   Name = "Accessory Unlocker",
+   Options = {"Hades Helmet","Frozen Wings", " "}, 
+   CurrentOption = {"Hades Helmet"},
+   MultipleOptions = false,
+   Flag = "Dropdown2", -- new flag so it doesn’t conflict with the emote dropdown
+   Callback = function(option)
+        local chosen = option[1] -- dropdown still returns a table
+
+        local DataFolder = game.Players.LocalPlayer:FindFirstChild("Data")
+        if not DataFolder then return end
+
+        local AccessoriesInventoryString = DataFolder:FindFirstChild("AccessoriesInventory")
+        local AccessoriesEquippedString = DataFolder:FindFirstChild("AccessoriesEquipped")
+
+        if AccessoriesInventoryString and AccessoriesInventoryString:IsA("StringValue") then
+            AccessoriesInventoryString.Value = '["' .. chosen .. '"]'
+        end
+
+        if AccessoriesEquippedString and AccessoriesEquippedString:IsA("StringValue") then
+            AccessoriesEquippedString.Value = '["' .. chosen .. '"]'
+        end
+
+        print("Accessory set to:", chosen)
+   end,
+})
+
+
+local Dropdown = MiscsMainTab:CreateDropdown({
+   Name = "Cape Unlocker",
+   Options = {"Santa","Krampus", " "}, 
+   CurrentOption = {"Santa"},
+   MultipleOptions = false,
+   Flag = "Dropdown3", -- new flag so no overlap
+   Callback = function(option)
+        local chosen = option[1] -- dropdown returns a table
+
+        local DataFolder = game.Players.LocalPlayer:FindFirstChild("Data")
+        if not DataFolder then return end
+
+        local CapesInventoryString = DataFolder:FindFirstChild("CapesInventory")
+        local CapesEquippedString = DataFolder:FindFirstChild("CapesEquipped")
+
+        if CapesInventoryString and CapesInventoryString:IsA("StringValue") then
+            CapesInventoryString.Value = '["' .. chosen .. '"]'
+        end
+
+        if CapesEquippedString and CapesEquippedString:IsA("StringValue") then
+            CapesEquippedString.Value = '["' .. chosen .. '"]'
+        end
+
+        print("Cape set to:", chosen)
+   end,
+})
+
