@@ -50,6 +50,9 @@ local MiscsMainTab = Window:CreateTab("👑MISCS👑", nil) -- Title, Image
 
 local MiscsMainSection = MiscsMainTab:CreateSection("MISC")
 
+local AUTOMainTab = Window:CreateTab("💀AUTO FARM💀", nil) -- Title, Image
+
+local AUTOMainSection = AUTOMainTab:CreateSection("AUTO FARM")
 
 local uis = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
@@ -585,6 +588,7 @@ local Dropdown = MiscsMainTab:CreateDropdown({
 })
 
 
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -666,5 +670,3 @@ local StopFollowBtn = AUTOMainTab:CreateButton({
       print("Stopped following.")
    end,
 })
-
-
