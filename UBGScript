@@ -587,86 +587,20 @@ local Dropdown = MiscsMainTab:CreateDropdown({
    end,
 })
 
+local Toggle = AUTOMainTab:CreateToggle({
+   Name = "Disable CombatTimer",
+   CurrentValue = false,
+   Flag = "Toggle7", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+            DisableComatTimer = Value
 
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
-
-local following = false
-local followConnection
-local followTargetName = nil
-
--- FUNCTIONS
-local function findTargetPlayer(name)
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            if string.lower(player.DisplayName) == string.lower(name) or string.lower(player.Name) == string.lower(name) then
-                return player
-            end
-        end
-    end
-    return nil
-end
-
-local function followPlayer(target)
-    if followConnection then
-        followConnection:Disconnect()
-    end
-
-    followConnection = RunService.Heartbeat:Connect(function()
-        if following and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-            local targetHRP = target.Character.HumanoidRootPart
-            local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-
-            if myHRP then
-                myHRP.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 3) -- stay behind
-            end
-        end
-    end)
-end
-
-local function stopFollowing()
-    following = false
-    if followConnection then
-        followConnection:Disconnect()
-        followConnection = nil
-    end
-end
-
--- RAYFIELD ELEMENTS
-local FollowInput = AUTOMainTab:CreateInput({
-   Name = "Player to Follow",
-   PlaceholderText = "Enter DisplayName or Username",
-   RemoveTextAfterFocusLost = false,
-   Callback = function(Text)
-      followTargetName = Text
+        local CombatTimer = game:GetService("ReplicatedStorage"):WaitForChild("Settings"):WaitForChild("Toggles"):WaitForChild("DisableCombatTimer")
+            if DisableComatTimer then
+			CombatTimer.Value = true
+        else
+            CombatTimer.Value = false
+		end
    end,
 })
 
-local StartFollowBtn = AUTOMainTab:CreateButton({
-   Name = "▶️ Start Following",
-   Callback = function()
-      if not followTargetName or followTargetName == "" then
-         warn("No player name entered!")
-         return
-      end
 
-      local targetPlayer = findTargetPlayer(followTargetName)
-      if targetPlayer then
-         following = true
-         followPlayer(targetPlayer)
-         print("Following:", targetPlayer.Name)
-      else
-         warn("Player not found: " .. tostring(followTargetName))
-      end
-   end,
-})
-
-local StopFollowBtn = AUTOMainTab:CreateButton({
-   Name = "⏹ Stop Following",
-   Callback = function()
-      stopFollowing()
-      print("Stopped following.")
-   end,
-})
