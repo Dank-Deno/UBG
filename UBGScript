@@ -587,9 +587,84 @@ local Dropdown = MiscsMainTab:CreateDropdown({
    end,
 })
 
-local Toggle = AUTOMainTab:CreateToggle({
-   
+-- Store the player to follow
+local followTarget = nil
+local following = false
+local followConnection = nil
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+-- Helper to find a player by name or display name
+local function findPlayerByName(name)
+    name = name:lower()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name:lower() == name or player.DisplayName:lower() == name then
+            return player
+        end
+    end
+    return nil
+end
+
+-- Start following the target
+local function startFollowing()
+    if followTarget and followTarget.Character and LocalPlayer.Character then
+        following = true
+        followConnection = RunService.RenderStepped:Connect(function()
+            if followTarget and followTarget.Character and followTarget.Character:FindFirstChild("HumanoidRootPart") then
+                local targetHRP = followTarget.Character.HumanoidRootPart
+                local localHRP = LocalPlayer.Character.HumanoidRootPart
+
+                local offset = 4 -- distance behind the player
+                local spawnPos = targetHRP.Position - targetHRP.CFrame.LookVector * offset
+                localHRP.CFrame = CFrame.new(spawnPos, targetHRP.Position)
+
+                Camera.CameraType = Enum.CameraType.Scriptable
+                Camera.CFrame = CFrame.new(spawnPos - targetHRP.CFrame.LookVector*10 + Vector3.new(0,5,0), spawnPos)
+            end
+        end)
+    end
+end
+
+-- Stop following
+local function stopFollowing()
+    following = false
+    if followConnection then
+        followConnection:Disconnect()
+        followConnection = nil
+    end
+    Camera.CameraType = Enum.CameraType.Custom
+    Camera.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+end
+
+-- Rayfield input
+local Input = AUTOMainTab:CreateInput({
+   Name = "Player Name",
+   CurrentValue = "",
+   PlaceholderText = "Enter Player Name",
+   RemoveTextAfterFocusLost = false,
+   Flag = "Input1",
+   Callback = function(Text)
+       -- Assign the player to follow whenever input changes
+       followTarget = findPlayerByName(Text)
    end,
 })
 
+-- Start Button
+local StartButton = AUTOMainTab:CreateButton({
+    Name = "Start Following",
+    Callback = function()
+        if followTarget then
+            startFollowing()
+        end
+    end
+})
 
+-- Stop Button
+local StopButton = AUTOMainTab:CreateButton({
+    Name = "Stop Following",
+    Callback = function()
+        stopFollowing()
+    end
+})
