@@ -587,7 +587,6 @@ local Dropdown = MiscsMainTab:CreateDropdown({
    end,
 })
 
--- Store the player to follow
 local followTarget = nil
 local following = false
 local followConnection = nil
@@ -596,7 +595,6 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- Helper to find a player by name or display name
 local function findPlayerByName(name)
     name = name:lower()
     for _, player in ipairs(Players:GetPlayers()) do
@@ -607,7 +605,6 @@ local function findPlayerByName(name)
     return nil
 end
 
--- Start following the target
 local function startFollowing()
     if followTarget and followTarget.Character and LocalPlayer.Character then
         following = true
@@ -627,7 +624,6 @@ local function startFollowing()
     end
 end
 
--- Stop following
 local function stopFollowing()
     following = false
     if followConnection then
@@ -638,7 +634,6 @@ local function stopFollowing()
     Camera.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
 end
 
--- Rayfield input
 local Input = AUTOMainTab:CreateInput({
    Name = "Player Name",
    CurrentValue = "",
@@ -651,7 +646,6 @@ local Input = AUTOMainTab:CreateInput({
    end,
 })
 
--- Start Button
 local StartButton = AUTOMainTab:CreateButton({
     Name = "Start Following",
     Callback = function()
@@ -661,7 +655,6 @@ local StartButton = AUTOMainTab:CreateButton({
     end
 })
 
--- Stop Button
 local StopButton = AUTOMainTab:CreateButton({
     Name = "Stop Following",
     Callback = function()
