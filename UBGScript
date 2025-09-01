@@ -587,80 +587,9 @@ local Dropdown = MiscsMainTab:CreateDropdown({
    end,
 })
 
--- FOLLOW GUI using Rayfield
-local FollowTab = Window:CreateTab("👁️ Follow Player 👁️", nil)
-local FollowSection = FollowTab:CreateSection("Follow Player")
-
-local followTarget = nil
-local following = false
-local followConnection = nil
-
--- TextBox to enter player name
-local FollowBox = FollowSection:CreateTextbox({
-    Name = "Player Name",
-    PlaceholderText = "Enter player name or display name",
-    RemoveTextAfterFocus = false,
-    Flag = "FollowPlayerTextbox",
-    Callback = function(text)
-        local searchText = text:lower()
-        -- Find player by display name or username
-        followTarget = nil
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            if player.DisplayName:lower() == searchText or player.Name:lower() == searchText then
-                followTarget = player
-                break
-            end
-        end
-        if followTarget then
-            print("Found target:", followTarget.Name)
-        else
-            print("Player not found")
-        end
-    end
+local Toggle = AUTOMainTab:CreateToggle({
+   
+   end,
 })
-
--- Start Follow Button
-local StartFollow = FollowSection:CreateButton({
-    Name = "Start Following",
-    Callback = function()
-        if followTarget and followTarget.Character and game.Players.LocalPlayer.Character then
-            following = true
-            followConnection = game:GetService("RunService").RenderStepped:Connect(function()
-                if followTarget and followTarget.Character and followTarget.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetHRP = followTarget.Character.HumanoidRootPart
-                    local localHRP = game.Players.LocalPlayer.Character.HumanoidRootPart
-                    local offset = 4
-                    local spawnPos = targetHRP.Position - targetHRP.CFrame.LookVector * offset
-                    localHRP.CFrame = CFrame.new(spawnPos, targetHRP.Position)
-                    
-                    local cam = workspace.CurrentCamera
-                    cam.CameraType = Enum.CameraType.Scriptable
-                    cam.CFrame = CFrame.new(spawnPos - targetHRP.CFrame.LookVector*10 + Vector3.new(0,5,0), spawnPos)
-                end
-            end)
-            print("Following", followTarget.Name)
-        else
-            print("No valid target to follow")
-        end
-    end
-})
-
--- Stop Follow Button
-local StopFollow = FollowSection:CreateButton({
-    Name = "Stop Following",
-    Callback = function()
-        following = false
-        if followConnection then
-            followConnection:Disconnect()
-            followConnection = nil
-        end
-        -- Reset camera
-        local cam = workspace.CurrentCamera
-        cam.CameraType = Enum.CameraType.Custom
-        cam.CameraSubject = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-        print("Stopped following")
-    end
-})
-
 
 
